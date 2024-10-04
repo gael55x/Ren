@@ -24,15 +24,17 @@ const WelcomeScreen = () => {
             end={{ x: 0.5, y: 0.8 }}
         />
         <View style={styles.contentContainer}>
-        <Text style={styles.title}>
-            Ren
-        </Text>
-        <Text style={styles.punchline}>
-        Your Daily Dose of Inspiration.
-        </Text>
-        <Pressable style={styles.startButton}>
-            <Text style={styles.startText}>Get Started</Text>
-        </Pressable>
+            <Animated.Text entering={FadeInDown.delay(400).springify()} style={styles.title}>
+                Ren
+            </Animated.Text>
+            <Animated.Text entering={FadeInDown.delay(500).springify()} style={styles.punchline}>
+                Your Daily Dose of Inspiration.
+            </Animated.Text>
+            <Animated.View entering={FadeInDown.delay(600).springify()}>
+                <Pressable style={styles.startButton}>
+                    <Text style={styles.startText}>Get Started</Text>
+                </Pressable>
+            </Animated.View>
         </View>
       </Animated.View>
 
