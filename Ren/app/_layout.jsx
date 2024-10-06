@@ -14,6 +14,14 @@ const Layout = () => {
                 name="home"
                 options={{headerShown: false}}
             />
+            <Stack.Screen
+                name="profile"
+                options={{headerShown: false}}
+            />
+            <Stack.Screen
+                name="favorites"
+                options={{headerShown: false}}
+            />
         </Stack>
     )
 }

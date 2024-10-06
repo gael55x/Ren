@@ -1,4 +1,4 @@
-// index.jsx
+// app/home/index.jsx
 import { View, Text, StyleSheet, Pressable, TextInput } from 'react-native';
 import React, { useState } from 'react';
 import { hp, wp } from '../../utils/common';
@@ -8,14 +8,15 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import Modal from 'react-native-modal';
+import { router } from 'expo-router'; // Import router from expo-router for navigation
 
 const HomeScreen = () => {
   const [customFeeling, setCustomFeeling] = useState('');
   const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   const menuItems = [
-    { name: 'Your Profile', icon: 'person-outline' },
-    { name: 'Your Favorite Messages', icon: 'heart-outline' },
+    { name: 'Your Profile', icon: 'person-outline', route: 'profile' }, // Add route key
+    { name: 'Your Favorite Messages', icon: 'heart-outline', route: 'favorites' }, // Add route key
     { name: 'Settings', icon: 'settings-outline' },
     { name: 'Notifications', icon: 'notifications-outline' },
     { name: 'Logout', icon: 'log-out-outline' },
@@ -94,7 +95,16 @@ const HomeScreen = () => {
         <View style={styles.menuContainer}>
           <Text style={styles.profileName}>Gaille Amolong</Text>
           {menuItems.map((item, index) => (
-            <Pressable key={index} style={styles.menuItem} onPress={() => { /* Handle navigation */ }}>
+            <Pressable
+              key={index}
+              style={styles.menuItem}
+              onPress={() => {
+                setIsMenuVisible(false);
+                if (item.route) {
+                  router.push(item.route); // Use router to navigate to the respective route
+                }
+              }}
+            >
               <Ionicons name={item.icon} size={hp(3)} color={theme.colors.sageGreen} style={styles.menuIconItem} />
               <Text style={styles.menuItemText}>{item.name}</Text>
             </Pressable>
