@@ -6,6 +6,7 @@ export const theme = {
       sageGreen: '#6F8A74', // color theme: Sage Green
       softBeige: '#D3C5A7', // color theme: Soft Beige
       lightGreen: '#A8D5BA', // light green for better contrast
+      darkBeige: '#BBA580',
       // neutral
       neutral: (opacity) => `rgba(144, 163, 149, ${opacity})`, // sageGreen for neutral theme with opacity
     },
