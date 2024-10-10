@@ -129,7 +129,6 @@ intents_data = load_intents_data()
 words, labels, training, output = preprocess_data(intents_data)
 model = build_and_train_model(training, output)
 
-# Initialize TfidfVectorizer
 vectorizer = TfidfVectorizer()
 
 corpus = []
@@ -164,7 +163,7 @@ def get_response(user_input, confidence_threshold=0.50):
             break
 
     if responses:
-        return [responses[0]]  
+        return [responses]  
     else:
         return ["I'm sorry, but I don't have a response for that question."]
 

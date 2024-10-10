@@ -147,6 +147,24 @@
       "context": ["happy"]
     },
     {
+      "tag": "greeting_lust",
+      "patterns": [
+        "hi",
+        "hello",
+        "i'm feeling lustful",
+        "i have strong desires",
+        "i can't stop thinking about someone",
+        "i'm experiencing intense attraction",
+        "i feel passionate"
+      ],
+      "responses": [
+        "Hello! It's natural to have strong feelings. Remember to respect yourself and others.",
+        "Hi there. Strong emotions can be overwhelming. Would you like to talk about it?",
+        "Hey! Experiencing attraction is part of being human. Make sure to take care of yourself."
+      ],
+      "context": ["lust"]
+    },
+    {
       "tag": "encouragement_tired",
       "patterns": [
         "i'm tired",
@@ -273,6 +291,54 @@
         "Keep embracing the positive vibes!"
       ],
       "context": ["happy"]
+    },
+    {
+      "tag": "encouragement_lust",
+      "patterns": [
+        "i can't stop thinking about them",
+        "my desires are overwhelming",
+        "i feel a strong attraction",
+        "i'm passionate about someone",
+        "i have intense feelings"
+      ],
+      "responses": [
+        "It's important to acknowledge your feelings. Remember to approach the situation thoughtfully.",
+        "Strong emotions can be intense. Consider expressing yourself in a respectful way.",
+        "Take your time to understand your feelings and consider the best way to proceed."
+      ],
+      "context": ["lust"]
+    },
+    {
+      "tag": "midterms_stress",
+      "patterns": [
+        "midterms are coming up",
+        "i'm nervous about my midterms",
+        "exams are stressing me out",
+        "i need to prepare for my exams",
+        "so much to study for midterms"
+      ],
+      "responses": [
+        "Midterms can be stressful. Remember to take breaks and believe in yourself.",
+        "It's okay to feel anxious about exams. You've got this!",
+        "Make a study plan to manage your time effectively. Good luck!"
+      ],
+      "context": ["midterms", "exams", "nervous", "stressed"]
+    },
+    {
+      "tag": "midterms_disappointment",
+      "patterns": [
+        "i screwed up my midterms",
+        "i failed my exams",
+        "my midterms didn't go well",
+        "i'm disappointed with my results",
+        "i didn't do as well as i hoped"
+      ],
+      "responses": [
+        "I'm sorry to hear that your midterms didn't go as planned. There's always an opportunity to learn and improve.",
+        "Don't be too hard on yourself. Consider what you can do differently next time.",
+        "Setbacks happen to everyone. Focus on the future and keep pushing forward."
+      ],
+      "context": ["midterms", "exams", "sad", "disappointed"]
     },
     {
       "tag": "goodbye",
