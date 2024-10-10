@@ -22,7 +22,7 @@ const ProfileScreen = () => {
 
   return (
     <LinearGradient
-      colors={['#f4f2ec', theme.colors.softBeige]} 
+      colors={['#ffffff', theme.colors.softBeige]} 
       style={styles.container}
     >
       <StatusBar style="dark" />
@@ -219,7 +219,7 @@ const styles = StyleSheet.create({
     color: theme.colors.darkBeige,
   },
   profileBio: {
-    fontSize: hp(1.8),
+    fontSize: hp(1.7),
     color: theme.colors.darkBeige,
     marginTop: hp(0.1),
     marginBottom: hp(1),

@@ -1,0 +1,137 @@
+{
+    "intents": [
+      {
+        "tag": "greeting_happy",
+        "patterns": ["hello", "hi", "hey", "good day", "what's up", "greetings", "how's it going"],
+        "responses": [
+          "Hello! You seem to be in a good mood. How can I assist you today?",
+          "Hi! It's great to see you're feeling happy! How can I inspire you further?",
+          "Hey there! I'm happy you're feeling good. What's on your mind today?",
+          "Greetings! Let’s make today even better. What can I help you with?"
+        ],
+        "context": ["happy"]
+      },
+      {
+        "tag": "greeting_sad",
+        "patterns": ["hello", "hi", "hey", "what's up", "greetings"],
+        "responses": [
+          "Hi there, it seems like you might be feeling a bit down. I’m here for you. How can I inspire you?",
+          "Hey, it's okay to feel sad sometimes. Let’s talk about something uplifting.",
+          "Hello, I sense you're feeling sad. How about some words of encouragement?",
+          "I'm here for you, no matter how you're feeling. Let me know how I can help."
+        ],
+        "context": ["sad"]
+      },
+      {
+        "tag": "greeting_angry",
+        "patterns": ["hello", "hi", "hey", "what's up", "greetings"],
+        "responses": [
+          "Hi, it seems like you're upset. It’s okay to vent. I’m here to listen or offer some advice if needed.",
+          "Hey, I sense you might be feeling angry. How about we talk about something calming?",
+          "Hello, it seems you’re frustrated. Let’s take a deep breath and focus on what we can improve.",
+          "It’s okay to feel this way sometimes. Let me know if you’d like to chat about something or need inspiration."
+        ],
+        "context": ["angry"]
+      },
+      {
+        "tag": "greeting_anxious",
+        "patterns": ["hello", "hi", "hey", "what's up", "greetings"],
+        "responses": [
+          "Hi, I sense you might be feeling anxious. Take a deep breath; I'm here to support you.",
+          "Hey, it’s okay to feel anxious sometimes. How can I help ease your mind?",
+          "Hello, if you're feeling anxious, we can focus on something inspiring. Let’s talk!",
+          "It’s okay to feel overwhelmed. I’m here to offer some calming thoughts or ideas to help."
+        ],
+        "context": ["anxious"]
+      },
+      {
+        "tag": "inspire_happy",
+        "patterns": ["tell me something inspiring", "inspire me", "motivate me", "give me a quote", "any inspiration for today?"],
+        "responses": [
+          "Success is not the key to happiness. Happiness is the key to success.",
+          "The only way to do great work is to love what you do. Keep going!",
+          "Stay positive! Even in the hardest moments, you have the power to create your own path.",
+          "You're amazing. Believe in yourself and keep pushing forward!"
+        ],
+        "context": ["happy"]
+      },
+      {
+        "tag": "inspire_sad",
+        "patterns": ["tell me something inspiring", "inspire me", "motivate me", "give me a quote", "any inspiration for today?"],
+        "responses": [
+          "Hey, it’s okay to feel down sometimes. Remember, even the darkest night will end, and the sun will rise.",
+          "You are stronger than you think, and every step forward is progress, no matter how small.",
+          "It’s okay to not be okay. What matters is that you keep trying.",
+          "No storm lasts forever. You're braver than you believe, and stronger than you seem."
+        ],
+        "context": ["sad"]
+      },
+      {
+        "tag": "inspire_angry",
+        "patterns": ["tell me something inspiring", "inspire me", "motivate me", "give me a quote", "any inspiration for today?"],
+        "responses": [
+          "Anger doesn’t solve problems, but calm and perseverance will help you overcome any challenge.",
+          "In every challenge lies an opportunity to grow stronger.",
+          "You have the power to turn frustration into motivation. Take a step back and tackle things with a fresh perspective.",
+          "Sometimes anger can fuel passion. Channel that energy into something creative and powerful."
+        ],
+        "context": ["angry"]
+      },
+      {
+        "tag": "inspire_anxious",
+        "patterns": ["tell me something inspiring", "inspire me", "motivate me", "give me a quote", "any inspiration for today?"],
+        "responses": [
+          "Take a deep breath. Things will fall into place. Trust in the process and keep moving forward.",
+          "You are stronger than the thoughts that make you anxious. Believe in yourself.",
+          "Every small victory is a step closer to peace of mind. You’ve got this!",
+          "No matter how anxious you feel right now, remember that you’re doing your best, and that’s enough."
+        ],
+        "context": ["anxious"]
+      },
+      {
+        "tag": "farewell_happy",
+        "patterns": ["bye", "see you later", "goodbye", "nice chatting with you", "farewell"],
+        "responses": [
+          "Goodbye! Keep spreading that positivity. I'm here if you need more inspiration!",
+          "See you later! Stay awesome and keep shining!",
+          "Farewell, and remember: You are capable of amazing things.",
+          "Goodbye for now! Keep being your positive, amazing self!"
+        ],
+        "context": ["happy"]
+      },
+      {
+        "tag": "farewell_sad",
+        "patterns": ["bye", "see you later", "goodbye", "nice chatting with you", "farewell"],
+        "responses": [
+          "Goodbye! I'm sending positive thoughts your way. You’re not alone in this.",
+          "Take care, and remember, brighter days are ahead. You’re stronger than you think.",
+          "Farewell! If you ever need a pick-me-up, I’m here for you.",
+          "See you later! Stay strong, and keep moving forward."
+        ],
+        "context": ["sad"]
+      },
+      {
+        "tag": "farewell_angry",
+        "patterns": ["bye", "see you later", "goodbye", "nice chatting with you", "farewell"],
+        "responses": [
+          "Goodbye! I hope the rest of your day improves. I’m here if you need to talk again.",
+          "Take care, and remember to breathe through the frustration. You’ve got this!",
+          "Farewell! If things get tough, I’m just a message away to offer some calm.",
+          "See you later! Focus on what you can control, and let go of what you can’t."
+        ],
+        "context": ["angry"]
+      },
+      {
+        "tag": "farewell_anxious",
+        "patterns": ["bye", "see you later", "goodbye", "nice chatting with you", "farewell"],
+        "responses": [
+          "Goodbye! You’ve got this. Breathe deeply and take things one step at a time.",
+          "Take care, and remember, every small step you take is a victory.",
+          "Farewell! You’re not alone in this. You’re capable of handling anything.",
+          "See you later! You’re stronger than your anxious thoughts. Keep pushing forward."
+        ],
+        "context": ["anxious"]
+      }
+    ]
+  }
+  
