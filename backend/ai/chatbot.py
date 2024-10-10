@@ -6,20 +6,30 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import tensorflow as tf
+from tensorflow.keras.callbacks import Callback
 import json
 from flask import Flask, request, jsonify
 
 nltk.download("punkt")
 
-# Initialize Flask app
 app = Flask(__name__)
 
-# Function to load intents data
+class StopTrainingAtAccuracy(Callback):
+    def __init__(self, accuracy_threshold):
+        super(StopTrainingAtAccuracy, self).__init__()
+        self.accuracy_threshold = accuracy_threshold
+
+    def on_epoch_end(self, epoch, logs=None):
+        accuracy = logs.get('accuracy')
+        if accuracy >= self.accuracy_threshold:
+            print(f"\nReached {self.accuracy_threshold*100}% accuracy, stopping training.")
+            self.model.stop_training = True
+
 def load_intents_data(filename='backend/ai/intents.json'):
     with open(filename, 'r', encoding='utf-8') as intents_file:
         return json.load(intents_file)
 
-# Function to preprocess data
+
 def preprocess_data(data):
     stemmer = LancasterStemmer()
     words = []
@@ -63,14 +73,14 @@ def preprocess_data(data):
 
     return words, labels, np.array(training), np.array(output)
 
-# Build and train the model
+
 def build_and_train_model(training, output, model_filename='model.h5'):
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(len(training[0]),)),
-        tf.keras.layers.Dense(128),
-        tf.keras.layers.Dense(128),
-        tf.keras.layers.Dense(128),
-        tf.keras.layers.Dense(128),
+        tf.keras.layers.Dense(64),
+        tf.keras.layers.Dense(64),
+        tf.keras.layers.Dense(64),
+        tf.keras.layers.Dense(64),
         tf.keras.layers.Dense(len(output[0]), activation='softmax')
     ])
 
@@ -152,5 +162,5 @@ def chatbot_route():
 
 # Start the Flask server
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5001)
+    app.run(host='0.0.0.0', port=5000)
 
