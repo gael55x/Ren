@@ -53,11 +53,11 @@ const ProfileScreen = () => {
         </View>
 
         {/* Bio Section - Centered */}
-        <Text style={styles.profileBio}>Software Engineer who needs inspiration</Text>
+        <Text style={styles.profileBio}>"A Software Engineer who needs inspiration."</Text>
 
         {/* Your Favorite Inspirations Section */}
         <View style={styles.section}>
-          <Pressable style={styles.favoriteQuotesButton} onPress={() => { /* Handle navigation to quotes */ }}>
+          <Pressable style={styles.favoriteQuotesButton} onPress={() => navigation.push('favorites')}>
             <Text style={styles.rowLabel}>Your Favorite Inspirations</Text>
             <Ionicons name="chevron-forward" size={hp(3)} color={theme.colors.sageGreen} />
           </Pressable>
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     paddingBottom: hp(5),
   },
   section: {
-    marginBottom: hp(3),
+    marginBottom: hp(2),
   },
   sectionTitle: {
     marginBottom: hp(1),
@@ -218,7 +218,8 @@ const styles = StyleSheet.create({
   profileBio: {
     fontSize: hp(1.8),
     color: theme.colors.darkBeige,
-    marginTop: hp(1),
+    marginTop: hp(0.1),
+    marginBottom: hp(1),
     fontStyle: 'italic',
     textAlign: 'center',
   },
