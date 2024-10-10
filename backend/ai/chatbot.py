@@ -1,5 +1,4 @@
-# pip install textblob
-
+# Import necessary modules
 import sys
 import time
 import nltk
@@ -10,10 +9,15 @@ import numpy as np
 import tensorflow as tf
 import json
 from textblob import TextBlob 
+from flask import Flask, request, jsonify
+
 nltk.download("punkt")
 
+# Initialize Flask app
+app = Flask(__name__)
+
 # Function to load intents data
-def load_intents_data(filename='intents.json'):
+def load_intents_data(filename='backend/ai/intents.json'):
     with open(filename, 'r', encoding='utf-8') as intents_file:
         return json.load(intents_file)
 
@@ -64,6 +68,7 @@ def preprocess_data(data):
 
     return words, labels, np.array(training), np.array(output)
 
+# Build and train the model
 def build_and_train_model(training, output, model_filename='model.h5'):
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(len(training[0]),)),
@@ -82,19 +87,7 @@ def build_and_train_model(training, output, model_filename='model.h5'):
 
     return model
 
-# Load intents data, preprocess, and build the model
-intents_data = load_intents_data()
-words, labels, training, output = preprocess_data(intents_data)
-model = build_and_train_model(training, output)
-
-# Initialize TfidfVectorizer
-vectorizer = TfidfVectorizer()
-
-# Preprocess and vectorize data during initialization
-corpus = [intent['patterns'] for intent in intents_data['intents']]
-X = vectorizer.fit_transform([' '.join(pattern) for pattern in corpus])
-y = np.array([intent.get('tag', 'unknown') for intent in intents_data['intents']])
-
+# Detect emotion from input using TextBlob
 def detect_emotion(user_input):
     """Use sentiment analysis to detect the emotion of the user."""
     blob = TextBlob(user_input)
@@ -111,6 +104,20 @@ def detect_emotion(user_input):
     else:
         return 'neutral'
 
+# Load intents, preprocess, and build the model
+intents_data = load_intents_data()
+words, labels, training, output = preprocess_data(intents_data)
+model = build_and_train_model(training, output)
+
+# Initialize TfidfVectorizer
+vectorizer = TfidfVectorizer()
+
+# Preprocess and vectorize data during initialization
+corpus = [intent['patterns'] for intent in intents_data['intents']]
+X = vectorizer.fit_transform([' '.join(pattern) for pattern in corpus])
+y = np.array([intent.get('tag', 'unknown') for intent in intents_data['intents']])
+
+# Function to get a response from the chatbot
 def get_response(user_input, confidence_threshold=0.50):
     # Detect emotion from user input
     emotion = detect_emotion(user_input)
@@ -137,22 +144,13 @@ def get_response(user_input, confidence_threshold=0.50):
     else:
         return ["I'm sorry, I don't have a response for that."]
 
-# Function to simulate chatbot conversation in the console
-def chat():
-    print("Chatbot is ready to talk! (Type 'quit' to exit)")
+# Flask API route for chatbot
+@app.route('/chatbot', methods=['POST'])
+def chatbot():
+    user_input = request.json.get('message')
+    responses = get_response(user_input)
+    return jsonify({"response": responses})
 
-    while True:
-        user_input = input("You: ").lower()
-        if user_input == 'quit':
-            break
-
-        # Get the response from the chatbot
-        responses = get_response(user_input)
-
-        # Display the chatbot's response
-        for response in responses:
-            print("Chatbot: " + response)
-
-# If this file is being run directly, start a chat loop
+# Start the Flask server
 if __name__ == "__main__":
-    chat()
+    app.run(host='0.0.0.0', port=5000)
