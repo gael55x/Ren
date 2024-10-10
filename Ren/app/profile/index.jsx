@@ -12,6 +12,7 @@ import { hp, wp } from '../../utils/common';
 import { theme } from '../../constants/theme';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useNavigation } from 'expo-router';
 
 const ProfileScreen = () => {
@@ -20,7 +21,10 @@ const ProfileScreen = () => {
   const [pushNotifications, setPushNotifications] = useState(false);
 
   return (
-    <View style={styles.container}>
+    <LinearGradient
+      colors={['#f4f2ec', theme.colors.softBeige]} 
+      style={styles.container}
+    >
       <StatusBar style="dark" />
 
       {/* Header */}
@@ -28,36 +32,40 @@ const ProfileScreen = () => {
         <Pressable onPress={() => navigation.goBack()} style={styles.headerAction}>
           <Ionicons name="arrow-back" size={hp(3)} color={theme.colors.sageGreen} />
         </Pressable>
-
-        <Text style={styles.headerTitle}>Profile</Text>
-
+        <Text style={styles.headerTitle}>Your Profile Screen</Text>
         <View style={styles.headerAction} />
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* Profile Section */}
-        <View style={[styles.section, { paddingTop: hp(2) }]}>
+        <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
-
-          <View style={styles.sectionBody}>
-            <Pressable style={styles.profile} onPress={() => { /* Handle Edit Profile */ }}>
-              <Image
-                source={require('../../assets/images/amolong_profile.png')}
-                style={styles.profileAvatar}
-              />
-              <View style={styles.profileBody}>
-                <Text style={styles.profileName}>Gaille Amolong</Text>
-                <Text style={styles.profileEmail}>gaille@example.com</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={hp(3)} color={theme.colors.sageGreen} />
-            </Pressable>
+          <View style={styles.profileSection}>
+            <Image
+              source={require('../../assets/images/amolong_profile.png')}
+              style={styles.profileAvatar}
+            />
+            <View style={styles.profileBody}>
+              <Text style={styles.profileName}>Gaille Amolong</Text>
+              <Text style={styles.profileEmail}>gaille@example.com</Text>
+            </View>
           </View>
+        </View>
+
+        {/* Bio Section - Centered */}
+        <Text style={styles.profileBio}>Software Engineer who needs inspiration</Text>
+
+        {/* Your Favorite Inspirations Section */}
+        <View style={styles.section}>
+          <Pressable style={styles.favoriteQuotesButton} onPress={() => { /* Handle navigation to quotes */ }}>
+            <Text style={styles.rowLabel}>Your Favorite Inspirations</Text>
+            <Ionicons name="chevron-forward" size={hp(3)} color={theme.colors.sageGreen} />
+          </Pressable>
         </View>
 
         {/* Preferences Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
-
           <View style={styles.sectionBody}>
             {/* Language Option */}
             <Pressable style={styles.rowWrapper} onPress={() => { /* Handle Language Change */ }}>
@@ -112,12 +120,10 @@ const ProfileScreen = () => {
         {/* Resources Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Resources</Text>
-
           <View style={styles.sectionBody}>
             <Pressable style={styles.rowWrapper} onPress={() => { /* Handle Contact Us */ }}>
               <View style={styles.row}>
                 <Text style={styles.rowLabel}>Contact Us</Text>
-                <View style={styles.rowSpacer} />
                 <Ionicons name="chevron-forward" size={hp(2.5)} color={theme.colors.sageGreen} />
               </View>
             </Pressable>
@@ -125,7 +131,6 @@ const ProfileScreen = () => {
             <Pressable style={styles.rowWrapper} onPress={() => { /* Handle Help & Support */ }}>
               <View style={styles.row}>
                 <Text style={styles.rowLabel}>Help & Support</Text>
-                <View style={styles.rowSpacer} />
                 <Ionicons name="chevron-forward" size={hp(2.5)} color={theme.colors.sageGreen} />
               </View>
             </Pressable>
@@ -140,28 +145,22 @@ const ProfileScreen = () => {
             </Pressable>
           </View>
         </View>
-
-        <Text style={styles.appVersion}>App Version 1.0.0</Text>
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
-  /** Container */
   container: {
     flex: 1,
-    backgroundColor: theme.colors.softBeige,
   },
-  /** Header */
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: hp(5),
     paddingBottom: hp(2),
     paddingHorizontal: wp(5),
-    backgroundColor: theme.colors.white,
-    elevation: 2,
+    backgroundColor: 'transparent',
   },
   headerAction: {
     width: wp(10),
@@ -174,22 +173,18 @@ const styles = StyleSheet.create({
     fontWeight: theme.fontWeights.bold,
     textAlign: 'center',
   },
-  /** Content */
   content: {
     paddingHorizontal: wp(5),
     paddingBottom: hp(5),
   },
-  /** Section */
   section: {
     marginBottom: hp(3),
   },
   sectionTitle: {
     marginBottom: hp(1),
-    fontSize: hp(2),
+    fontSize: hp(2.5),
     fontWeight: theme.fontWeights.semibold,
     color: theme.colors.sageGreen,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
   },
   sectionBody: {
     backgroundColor: theme.colors.white,
@@ -197,12 +192,10 @@ const styles = StyleSheet.create({
     paddingVertical: hp(1),
     elevation: 2,
   },
-  /** Profile */
-  profile: {
-    flexDirection: 'row',
+  profileSection: {
+    flexDirection: 'row', // Left-align profile section
     alignItems: 'center',
     paddingVertical: hp(2),
-    paddingHorizontal: wp(4),
   },
   profileAvatar: {
     width: wp(15),
@@ -222,7 +215,22 @@ const styles = StyleSheet.create({
     fontSize: hp(2),
     color: theme.colors.darkBeige,
   },
-  /** Row */
+  profileBio: {
+    fontSize: hp(1.8),
+    color: theme.colors.darkBeige,
+    marginTop: hp(1),
+    fontStyle: 'italic',
+    textAlign: 'center',
+  },
+  favoriteQuotesButton: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: hp(2),
+    paddingHorizontal: wp(4),
+    borderBottomWidth: 1,
+    borderColor: theme.colors.grayBG,
+  },
   rowWrapper: {
     paddingHorizontal: wp(4),
   },
@@ -243,9 +251,7 @@ const styles = StyleSheet.create({
   rowValue: {
     fontSize: hp(2.2),
     color: theme.colors.darkBeige,
-    marginRight: wp(2),
   },
-  /** Logout */
   logoutButton: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -253,15 +259,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 0,
   },
   logoutText: {
-    color: theme.colors.errorRed || '#DC2626',
+    color: theme.colors.errorRed,
     fontWeight: theme.fontWeights.semibold,
-  },
-  /** App Version */
-  appVersion: {
-    marginTop: hp(2),
-    fontSize: hp(2),
-    textAlign: 'center',
-    color: theme.colors.darkBeige,
   },
 });
 

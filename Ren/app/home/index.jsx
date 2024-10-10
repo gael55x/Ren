@@ -36,7 +36,7 @@ const HomeScreen = () => {
 
       {/* Inspirational Quote Section */}
       <View style={styles.quoteSection}>
-        <Text style={styles.inspirationText}>Your Daily Inspirational Quote or Daily Message</Text>
+        <Text style={styles.inspirationText}>Your Daily Dose of Inspiration</Text>
         <Text style={styles.outputMessage}>"Message will appear here"</Text>
       </View>
 
