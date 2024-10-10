@@ -6,12 +6,13 @@ import { StatusBar } from 'expo-status-bar';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Modal from 'react-native-modal';
+import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useNavigation, router } from 'expo-router';
 
 const FavoritesScreen = () => {
   const navigation = useNavigation();
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const favoriteQuotes = ['Quote 1', 'Quote 2', 'Quote 3', 'Quote 4', 'Quote 5']; // Sample data
+  const favoriteQuotes = ['"Do or do not, there is no try."', '"Life is what happens when you’re busy making other plans."', '"The only impossible journey is the one you never begin."', '"Stay hungry, stay foolish."', '"In the end, we only regret the chances we didn’t take."'];
 
   const menuItems = [
     { name: 'Your Profile', icon: 'person-outline', route: 'profile' },
@@ -40,9 +41,16 @@ const FavoritesScreen = () => {
 
       <ScrollView contentContainerStyle={styles.content}>
         {favoriteQuotes.map((quote, index) => (
-          <Pressable key={index} style={styles.quoteItem}>
-            <Text style={styles.quoteText}>{quote}</Text>
-          </Pressable>
+          <Animated.View
+            key={index}
+            entering={FadeInUp.delay(index * 100)}
+            style={styles.animatedQuoteItem}
+          >
+            <Pressable style={styles.quoteItem}>
+              <Ionicons name="heart-outline" size={hp(2.5)} color={theme.colors.sageGreen} style={styles.icon} />
+              <Text style={styles.quoteText}>{quote}</Text>
+            </Pressable>
+          </Animated.View>
         ))}
       </ScrollView>
 
@@ -114,24 +122,36 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     paddingBottom: hp(5),
   },
+  animatedQuoteItem: {
+    marginBottom: hp(2), 
+  },
   quoteItem: {
     backgroundColor: theme.colors.white,
-    paddingVertical: hp(2),
-    paddingHorizontal: wp(4),
-    marginBottom: hp(1.5),
-    borderRadius: theme.radius.md,
-    shadowColor: '#000',
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-    justifyContent: 'center',
+    flexDirection: 'row', 
     alignItems: 'center',
+    paddingVertical: hp(2.5),
+    paddingHorizontal: wp(4),
+    borderRadius: theme.radius.lg,
+    shadowColor: '#000',
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 3,
+    justifyContent: 'flex-start',
+    marginBottom: hp(1.5),
+    width: '100%',  // Make the item take up full width
+    flexGrow: 1,    // Allow it to grow with content
+    flexShrink: 1,  // Shrink to fit on smaller screens
   },
   quoteText: {
-    fontSize: hp(2.3),
+    fontSize: hp(2.5), 
     color: theme.colors.sageGreen,
-    textAlign: 'center',
+    textAlign: 'left', 
+    marginLeft: wp(3),
+    flexShrink: 1, // Ensure text adjusts responsively
+  },
+  icon: {
+    marginRight: wp(2),
   },
   menuModal: {
     margin: 0,
