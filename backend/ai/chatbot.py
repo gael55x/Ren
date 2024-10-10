@@ -1,5 +1,3 @@
-# chatbot.py
-
 import sys
 import time
 import nltk
