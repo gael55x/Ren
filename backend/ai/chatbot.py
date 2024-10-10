@@ -1,4 +1,5 @@
-# Import necessary modules
+# chatbot.py
+
 import sys
 import time
 import nltk
@@ -8,7 +9,6 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import tensorflow as tf
 import json
-from textblob import TextBlob 
 from flask import Flask, request, jsonify
 
 nltk.download("punkt")
@@ -34,10 +34,7 @@ def preprocess_data(data):
             wrds = nltk.word_tokenize(pattern)
             words.extend(wrds)
             x_docs.append(wrds)
-            if 'tag' in intent:
-                y_docs.append(intent['tag'])
-            else:
-                y_docs.append('unknown')
+            y_docs.append(intent.get('tag', 'unknown'))
 
             if 'tag' in intent and intent['tag'] not in labels:
                 labels.append(intent['tag'])
@@ -72,39 +69,40 @@ def preprocess_data(data):
 def build_and_train_model(training, output, model_filename='model.h5'):
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(len(training[0]),)),
-        tf.keras.layers.Dense(12),
-        tf.keras.layers.Dense(12),
+        tf.keras.layers.Dense(128),
+        tf.keras.layers.Dense(128),
+        tf.keras.layers.Dense(128),
+        tf.keras.layers.Dense(128),
         tf.keras.layers.Dense(len(output[0]), activation='softmax')
     ])
 
     model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
-    
+
+    # Print the number of neurons in the input and output layers
+    num_input_neurons = len(training[0])
+    num_output_neurons = len(output[0])
+
+    print(f"Number of neurons in the input layer: {num_input_neurons}")
+    print(f"Number of neurons in the output layer: {num_output_neurons}")
+
     try:
         model = tf.keras.models.load_model(model_filename)
     except:
         model.fit(training, output, epochs=100, batch_size=14)
         model.save(model_filename)
 
+    # Display a summary of the model architecture, including the number of parameters
+    model.summary()
+
+    # Access the details of each layer
+    for layer in model.layers:
+        print(layer.name, layer.trainable)
+        if hasattr(layer, 'weights'):
+            print([w.shape for w in layer.weights])
+
     return model
 
-# Detect emotion from input using TextBlob
-def detect_emotion(user_input):
-    """Use sentiment analysis to detect the emotion of the user."""
-    blob = TextBlob(user_input)
-    polarity = blob.sentiment.polarity
-
-    if polarity > 0.5:
-        return 'excited'
-    elif 0 < polarity <= 0.5:
-        return 'happy'
-    elif -0.5 <= polarity < 0:
-        return 'sad'
-    elif polarity < -0.5:
-        return 'angry'
-    else:
-        return 'neutral'
-
-# Load intents, preprocess, and build the model
+# Load intents data, preprocess, and build the model
 intents_data = load_intents_data()
 words, labels, training, output = preprocess_data(intents_data)
 model = build_and_train_model(training, output)
@@ -113,44 +111,48 @@ model = build_and_train_model(training, output)
 vectorizer = TfidfVectorizer()
 
 # Preprocess and vectorize data during initialization
-corpus = [intent['patterns'] for intent in intents_data['intents']]
-X = vectorizer.fit_transform([' '.join(pattern) for pattern in corpus])
-y = np.array([intent.get('tag', 'unknown') for intent in intents_data['intents']])
+corpus = []
+for intent in intents_data['intents']:
+    for pattern in intent['patterns']:
+        corpus.append(pattern)
+X = vectorizer.fit_transform(corpus)
+y = np.array([intent.get('tag', 'unknown') for intent in intents_data['intents'] for _ in intent['patterns']])
 
 # Function to get a response from the chatbot
 def get_response(user_input, confidence_threshold=0.50):
-    # Detect emotion from user input
-    emotion = detect_emotion(user_input)
-    print(f"Detected emotion: {emotion}")
-
-    # Use TF-IDF and cosine similarity to map user input to chatbot intents
     user_vector = vectorizer.transform([user_input])
+
+    # Calculate cosine similarity between user input and patterns
     similarity_scores = cosine_similarity(user_vector, X)
+
+    # Find the intent with the highest similarity score
     max_similarity_index = np.argmax(similarity_scores)
     max_similarity = similarity_scores[0, max_similarity_index]
 
     if max_similarity < confidence_threshold:
-        return ["I'm sorry, I don't have a response for that."]
+        return ["I'm sorry, but I don't have a response for that question."]
 
     tag = y[max_similarity_index]
-    responses = []
 
+    responses = []
     for intent in intents_data['intents']:
-        if 'tag' in intent and intent['tag'] == tag and emotion in intent.get('context', []):
-            responses.extend(intent['responses'])
+        if 'tag' in intent and intent['tag'] == tag:
+            if 'responses' in intent:  # Check if 'responses' exists in the intent
+                responses.extend(intent['responses'])
 
     if responses:
-        return [responses[0]]
+        return [responses[0]]  # Return only the first response
     else:
-        return ["I'm sorry, I don't have a response for that."]
+        return ["I'm sorry, but I don't have a response for that question. "]
 
 # Flask API route for chatbot
 @app.route('/chatbot', methods=['POST'])
-def chatbot():
+def chatbot_route():
     user_input = request.json.get('message')
     responses = get_response(user_input)
     return jsonify({"response": responses})
 
 # Start the Flask server
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5001)
+
