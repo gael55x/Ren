@@ -1,3 +1,5 @@
+# pip install textblob
+
 import sys
 import time
 import nltk
@@ -7,7 +9,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 import tensorflow as tf
 import json
-
+from textblob import TextBlob 
 nltk.download("punkt")
 
 # Function to load intents data
@@ -28,7 +30,6 @@ def preprocess_data(data):
             wrds = nltk.word_tokenize(pattern)
             words.extend(wrds)
             x_docs.append(wrds)
-            # Use the get method to provide a default value ('unknown') when 'tag' is missing
             if 'tag' in intent:
                 y_docs.append(intent['tag'])
             else:
@@ -66,10 +67,8 @@ def preprocess_data(data):
 def build_and_train_model(training, output, model_filename='model.h5'):
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(len(training[0]),)),
-        tf.keras.layers.Dense(128),
-        tf.keras.layers.Dense(128),
-        tf.keras.layers.Dense(128), 
-        tf.keras.layers.Dense(128),
+        tf.keras.layers.Dense(12),
+        tf.keras.layers.Dense(12),
         tf.keras.layers.Dense(len(output[0]), activation='softmax')
     ])
 
@@ -96,13 +95,30 @@ corpus = [intent['patterns'] for intent in intents_data['intents']]
 X = vectorizer.fit_transform([' '.join(pattern) for pattern in corpus])
 y = np.array([intent.get('tag', 'unknown') for intent in intents_data['intents']])
 
+def detect_emotion(user_input):
+    """Use sentiment analysis to detect the emotion of the user."""
+    blob = TextBlob(user_input)
+    polarity = blob.sentiment.polarity
+
+    if polarity > 0.5:
+        return 'excited'
+    elif 0 < polarity <= 0.5:
+        return 'happy'
+    elif -0.5 <= polarity < 0:
+        return 'sad'
+    elif polarity < -0.5:
+        return 'angry'
+    else:
+        return 'neutral'
+
 def get_response(user_input, confidence_threshold=0.50):
+    # Detect emotion from user input
+    emotion = detect_emotion(user_input)
+    print(f"Detected emotion: {emotion}")
+
+    # Use TF-IDF and cosine similarity to map user input to chatbot intents
     user_vector = vectorizer.transform([user_input])
-
-    # Calculate cosine similarity between user input and patterns
     similarity_scores = cosine_similarity(user_vector, X)
-
-    # Find the intent with the highest similarity score
     max_similarity_index = np.argmax(similarity_scores)
     max_similarity = similarity_scores[0, max_similarity_index]
 
@@ -110,22 +126,21 @@ def get_response(user_input, confidence_threshold=0.50):
         return ["I'm sorry, I don't have a response for that."]
 
     tag = y[max_similarity_index]
-
     responses = []
+
     for intent in intents_data['intents']:
-        if 'tag' in intent and intent['tag'] == tag:
-            if 'responses' in intent:  # Check if 'responses' exists in the intent
-                responses.extend(intent['responses'])
+        if 'tag' in intent and intent['tag'] == tag and emotion in intent.get('context', []):
+            responses.extend(intent['responses'])
 
     if responses:
-        return [responses[0]]  # Return only the first response
+        return [responses[0]]
     else:
         return ["I'm sorry, I don't have a response for that."]
 
 # Function to simulate chatbot conversation in the console
 def chat():
     print("Chatbot is ready to talk! (Type 'quit' to exit)")
-    
+
     while True:
         user_input = input("You: ").lower()
         if user_input == 'quit':
