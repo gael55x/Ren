@@ -13,10 +13,10 @@ import { theme } from '../../constants/theme';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 const ProfileScreen = () => {
-  const navigation = useNavigation();
+  const navigation = useRouter();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
 
@@ -57,7 +57,10 @@ const ProfileScreen = () => {
 
         {/* Your Favorite Inspirations Section */}
         <View style={styles.section}>
-          <Pressable style={styles.favoriteQuotesButton} onPress={() => navigation.push('favorites')}>
+          <Pressable 
+            style={styles.favoriteQuotesButton} 
+            onPress={() => navigation.push('/favorites')}
+          >
             <Text style={styles.rowLabel}>Your Favorite Inspirations</Text>
             <Ionicons name="chevron-forward" size={hp(3)} color={theme.colors.sageGreen} />
           </Pressable>
