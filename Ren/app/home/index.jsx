@@ -1,10 +1,10 @@
-import { View, Text, StyleSheet, Pressable, TextInput } from 'react-native';
-import React, { useState } from 'react';
+import { View, Text, StyleSheet, Pressable, TextInput, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
 import { hp, wp } from '../../utils/common';
 import { theme } from '../../constants/theme';
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown } from 'react-native-reanimated';
+import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import Modal from 'react-native-modal';
 import { router } from 'expo-router';
@@ -12,7 +12,13 @@ import { router } from 'expo-router';
 const HomeScreen = () => {
   const [customFeeling, setCustomFeeling] = useState('');
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const [outputMessage, setOutputMessage] = useState(''); 
+  const [outputMessage, setOutputMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [showButtons, setShowButtons] = useState(true);
+  const [showPrompt, setShowPrompt] = useState(false);
+  const [userPrompt, setUserPrompt] = useState('');
+  const [typingText, setTypingText] = useState(''); // State for the typing effect
+
   const menuItems = [
     { name: 'Your Profile', icon: 'person-outline', route: 'profile' },
     { name: 'Your Favorite Messages', icon: 'heart-outline', route: 'favorites' },
@@ -23,7 +29,12 @@ const HomeScreen = () => {
 
   const sendMessageToBackend = async (message) => {
     try {
-      const response = await fetch('http://10.0.2.2:5000/chatbot', { 
+      setIsTyping(true);
+      setUserPrompt(message);
+      setShowButtons(false); // Hide the buttons when typing starts
+      setShowPrompt(true); // Display the user's message
+
+      const response = await fetch('http://10.0.2.2:5000/chatbot', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -32,15 +43,51 @@ const HomeScreen = () => {
       });
       const data = await response.json();
       console.log('request: ', data);
+
+      // Randomly select one response
       if (data.response && data.response.length > 0) {
-        setOutputMessage(data.response[0]);
+        const responses = data.response[0];
+        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+
+        // Add a 2-second delay before starting the typing effect
+        setTimeout(() => {
+          typingEffect(`Ren: ${randomResponse}`);
+        }, 2000); // 2-second delay
       } else {
         setOutputMessage("I'm sorry, but I don't have a response for that question.");
+        setIsTyping(false);
+        resetUIAfterResponse();
       }
     } catch (error) {
       console.error('Error:', error);
       setOutputMessage('Error connecting to the server.');
+      setIsTyping(false);
+      resetUIAfterResponse();
     }
+  };
+
+  // Typing effect function with improved timing control
+  const typingEffect = (text) => {
+    setTypingText(''); // Reset typing text
+    let i = 0;
+
+    const typingInterval = setInterval(() => {
+      setTypingText((prev) => prev + text[i]); // Add one character at a time
+      i++;
+      if (i >= text.length) {
+        clearInterval(typingInterval); // Stop typing when we reach the end of the message
+        setIsTyping(false); // Typing finished
+        resetUIAfterResponse();
+      }
+    }, 120); // Typing speed in milliseconds (adjust for a faster/slower effect)
+  };
+
+  // Reset the UI after response has been fully typed
+  const resetUIAfterResponse = () => {
+    setTimeout(() => {
+      setShowButtons(true); // Show buttons after response
+      setShowPrompt(false); // Hide user prompt once response is displayed
+    }, 1000); // Delay for showing buttons and hiding prompt after response
   };
 
   const moodItems = [
@@ -68,56 +115,65 @@ const HomeScreen = () => {
 
       {/* Inspirational Quote Section */}
       <View style={styles.quoteSection}>
-        <Text style={styles.inspirationText}>Your Daily Dose of Inspiration</Text>
-        <Text style={styles.outputMessage}>{outputMessage || '"Message will appear here"'}</Text>
+        <Text style={styles.inspirationText}>Your Daily Inspiration</Text>
+        {showPrompt && (
+          <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.userPrompt}>
+            <Text style={styles.userPromptText}>You: {userPrompt}</Text>
+          </Animated.View>
+        )}
+        <Text style={styles.outputMessage}>
+          {isTyping ? typingText : outputMessage}
+        </Text>
       </View>
 
       {/* Mood Input Section */}
-      <Animated.View entering={FadeInDown.delay(500).springify()} style={styles.searchSection}>
-        {/* How are you feeling today */}
-        <View style={styles.dropdownButton}>
-          <Text style={styles.questionText}>How are you feeling today?</Text>
-        </View>
+      {showButtons && (
+        <Animated.View entering={FadeInDown.delay(500).springify()} exiting={FadeOut} style={styles.searchSection}>
+          {/* How are you feeling today */}
+          <View style={styles.dropdownButton}>
+            <Text style={styles.questionText}>How are you feeling today?</Text>
+          </View>
 
-        {/* Mood Buttons */}
-        <Animated.View entering={FadeInDown.delay(800).springify()} style={styles.moodButtonsContainer}>
-          <View style={styles.moodButtons}>
-            {moodItems.map((item, index) => (
-              <Pressable
-                key={index}
-                style={[styles.moodButton, { backgroundColor: item.color }]}
-                onPress={() => sendMessageToBackend(item.message)}
-              >
-                <Text style={styles.moodButtonText}>
-                  {item.emoji} {item.mood}
-                </Text>
-              </Pressable>
-            ))}
+          {/* Mood Buttons */}
+          <Animated.View entering={FadeInDown.delay(800).springify()} style={styles.moodButtonsContainer}>
+            <View style={styles.moodButtons}>
+              {moodItems.map((item, index) => (
+                <Pressable
+                  key={index}
+                  style={[styles.moodButton, { backgroundColor: item.color }]}
+                  onPress={() => sendMessageToBackend(item.message)}
+                >
+                  <Text style={styles.moodButtonText}>
+                    {item.emoji} {item.mood}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </Animated.View>
+
+          {/* Custom Prompt Section */}
+          <View style={styles.customPrompt}>
+            <TextInput
+              style={styles.customInput}
+              placeholder="Custom Prompt Feeling goes here"
+              placeholderTextColor={theme.colors.neutral(0.6)}
+              value={customFeeling}
+              onChangeText={setCustomFeeling}
+            />
+            <Pressable
+              style={styles.promptButton}
+              onPress={() => {
+                if (customFeeling.trim()) {
+                  sendMessageToBackend(customFeeling);
+                  setCustomFeeling('');
+                }
+              }}
+            >
+              <FontAwesome name="chevron-up" size={hp(4)} color={theme.colors.white} />
+            </Pressable>
           </View>
         </Animated.View>
-
-        {/* Custom Prompt Section */}
-        <View style={styles.customPrompt}>
-          <TextInput
-            style={styles.customInput}
-            placeholder="Custom Prompt Feeling goes here"
-            placeholderTextColor={theme.colors.neutral(0.6)}
-            value={customFeeling}
-            onChangeText={setCustomFeeling}
-          />
-          <Pressable
-            style={styles.promptButton}
-            onPress={() => {
-              if (customFeeling.trim()) {
-                sendMessageToBackend(customFeeling);
-                setCustomFeeling('');
-              }
-            }}
-          >
-            <FontAwesome name="chevron-up" size={hp(4)} color={theme.colors.white} />
-          </Pressable>
-        </View>
-      </Animated.View>
+      )}
 
       {/* Navigation Menu Modal */}
       <Modal
@@ -183,8 +239,15 @@ const styles = StyleSheet.create({
     fontWeight: theme.fontWeights.medium,
     marginBottom: hp(4),
   },
+  userPrompt: {
+    marginBottom: hp(2),
+  },
+  userPromptText: {
+    fontSize: hp(2.2),
+    color: theme.colors.sageGreen,
+  },
   outputMessage: {
-    marginTop: hp(4),
+    marginTop: hp(2),
     fontSize: hp(2.2),
     color: theme.colors.sageGreen,
     textAlign: 'center',
