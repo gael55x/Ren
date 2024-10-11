@@ -390,6 +390,23 @@
         "Let's try to figure it out together."
       ],
       "context": ["all"]
+    },
+    {
+      "tag": "who is ren",
+      "patterns": [
+        "who is ren?",
+        "tell me about ren",
+        "who's ren?",
+        "can you introduce ren?",
+        "what do you know about ren?", 
+        "who are you?"
+      ],
+      "responses": [
+        "Ren is a friendly and thoughtful individual, always ready to lend an ear. They have a calm and supportive presence, perfect for when you're feeling down or in need of guidance.",
+        "Ren is someone who's always here to help you through your emotions or challenges. Whether you're happy, sad, or confused, Ren can provide support or encouragement.",
+        "Ren is a fictional character designed to offer empathy and insight. You can think of Ren as a guide who's here to listen and help you navigate your feelings."
+      ],
+      "context": ["ren_introduction"]
     }
   ]
 }

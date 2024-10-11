@@ -109,7 +109,7 @@ def build_and_train_model(training, output, model_filename='model.h5'):
         model.fit(
             training,
             output,
-            epochs=100,
+            epochs=97,
             batch_size=14,
             callbacks=[accuracy_callback]
         )
