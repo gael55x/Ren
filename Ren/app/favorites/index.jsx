@@ -7,12 +7,13 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Modal from 'react-native-modal';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { useNavigation, router } from 'expo-router';
+import { useNavigation, router, useLocalSearchParams } from 'expo-router';
 
 const FavoritesScreen = () => {
   const navigation = useNavigation();
+  const { favorites } = useLocalSearchParams(); // Fetch favorites passed via navigation
+
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const favoriteQuotes = ['"Do or do not, there is no try."', '"Life is what happens when you’re busy making other plans."', '"The only impossible journey is the one you never begin."', '"Stay hungry, stay foolish."', '"In the end, we only regret the chances we didn’t take."'];
 
   const menuItems = [
     { name: 'Your Profile', icon: 'person-outline', route: 'profile' },
@@ -40,18 +41,22 @@ const FavoritesScreen = () => {
       </View>
 
       <ScrollView contentContainerStyle={styles.content}>
-        {favoriteQuotes.map((quote, index) => (
-          <Animated.View
-            key={index}
-            entering={FadeInUp.delay(index * 100)}
-            style={styles.animatedQuoteItem}
-          >
-            <Pressable style={styles.quoteItem}>
-              <Ionicons name="heart-outline" size={hp(2.5)} color={theme.colors.sageGreen} style={styles.icon} />
-              <Text style={styles.quoteText}>{quote}</Text>
-            </Pressable>
-          </Animated.View>
-        ))}
+        {favorites && favorites.length > 0 ? (
+          favorites.map((quote, index) => (
+            <Animated.View
+              key={index}
+              entering={FadeInUp.delay(index * 100)}
+              style={styles.animatedQuoteItem}
+            >
+              <Pressable style={styles.quoteItem}>
+                <Ionicons name="heart" size={hp(2.5)} color={theme.colors.sageGreen} style={styles.icon} />
+                <Text style={styles.quoteText}>{quote}</Text>
+              </Pressable>
+            </Animated.View>
+          ))
+        ) : (
+          <Text style={styles.noFavorites}>You don't have any favorites yet!</Text>
+        )}
       </ScrollView>
 
       {/* Navigation Menu Modal */}
@@ -139,19 +144,24 @@ const styles = StyleSheet.create({
     elevation: 3,
     justifyContent: 'flex-start',
     marginBottom: hp(1.5),
-    width: '100%',  // Make the item take up full width
-    flexGrow: 1,    // Allow it to grow with content
-    flexShrink: 1,  // Shrink to fit on smaller screens
+    width: '100%', 
+    flexGrow: 1, 
+    flexShrink: 1, 
   },
   quoteText: {
     fontSize: hp(2.5), 
     color: theme.colors.sageGreen,
     textAlign: 'left', 
     marginLeft: wp(3),
-    flexShrink: 1, // Ensure text adjusts responsively
+    flexShrink: 1, 
   },
   icon: {
     marginRight: wp(2),
+  },
+  noFavorites: {
+    fontSize: hp(2),
+    color: theme.colors.sageGreen,
+    textAlign: 'center',
   },
   menuModal: {
     margin: 0,

@@ -19,14 +19,17 @@ const HomeScreen = () => {
   const [userPrompt, setUserPrompt] = useState(''); 
   const [typingText, setTypingText] = useState(''); 
   const [loading, setLoading] = useState(false); 
+  const [favorites, setFavorites] = useState([]); // Add state for favorite messages
+  const [isFavorite, setIsFavorite] = useState(false); // Track if the response is a favorite
 
-  const menuItems = [
-    { name: 'Your Profile', icon: 'person-outline', route: 'profile' },
-    { name: 'Your Favorite Messages', icon: 'heart-outline', route: 'favorites' },
-    { name: 'Settings', icon: 'settings-outline' },
-    { name: 'Notifications', icon: 'notifications-outline' },
-    { name: 'Logout', icon: 'log-out-outline' },
-  ];
+  const toggleFavorite = () => {
+    setIsFavorite(!isFavorite);
+    if (!isFavorite && outputMessage) {
+      setFavorites([...favorites, outputMessage]); // Add to favorites
+    } else {
+      setFavorites(favorites.filter(fav => fav !== outputMessage)); // Remove from favorites
+    }
+  };
 
   const sendMessageToBackend = async (message) => {
     try {
@@ -89,6 +92,14 @@ const HomeScreen = () => {
     }, 1000); 
   };
 
+  const menuItems = [
+    { name: 'Your Profile', icon: 'person-outline', route: 'profile' },
+    { name: 'Your Favorite Messages', icon: 'heart-outline', route: 'favorites' },
+    { name: 'Settings', icon: 'settings-outline' },
+    { name: 'Notifications', icon: 'notifications-outline' },
+    { name: 'Logout', icon: 'log-out-outline' },
+  ];
+  
   const moodItems = [
     { mood: 'Tired', emoji: '😴', color: theme.colors.sageGreen, message: "I'm feeling tired" },
     { mood: 'Nervous', emoji: '😰', color: theme.colors.darkBeige, message: "I'm feeling nervous" },
@@ -125,17 +136,25 @@ const HomeScreen = () => {
             <ActivityIndicator size="small" color={theme.colors.sageGreen} />
           ) : isTyping ? typingText : outputMessage}
         </Text>
+        {!isTyping && outputMessage && (
+          <Pressable onPress={toggleFavorite}>
+            <Ionicons 
+              name={isFavorite ? "heart" : "heart-outline"} 
+              size={hp(3)} 
+              color={theme.colors.sageGreen} 
+              style={styles.favoriteIcon} 
+            />
+          </Pressable>
+        )}
       </View>
 
       {/* Mood Input Section */}
       {showButtons && (
         <Animated.View entering={FadeInDown.delay(500).springify()} exiting={FadeOut} style={styles.searchSection}>
-          {/* How are you feeling today */}
           <View style={styles.dropdownButton}>
             <Text style={styles.questionText}>How are you feeling today?</Text>
           </View>
 
-          {/* Mood Buttons */}
           <Animated.View entering={FadeInDown.delay(800).springify()} style={styles.moodButtonsContainer}>
             <View style={styles.moodButtons}>
               {moodItems.map((item, index) => (
@@ -152,7 +171,6 @@ const HomeScreen = () => {
             </View>
           </Animated.View>
 
-          {/* Custom Prompt Section */}
           <View style={styles.customPrompt}>
             <TextInput
               style={styles.customInput}
@@ -314,6 +332,10 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.md,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  favoriteIcon: {
+    alignSelf: 'center',
+    marginTop: hp(2),
   },
   menuModal: {
     margin: 0,

@@ -16,7 +16,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 
 const ProfileScreen = () => {
-  const navigation = useRouter();
+  const router = useRouter();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
 
@@ -29,10 +29,10 @@ const ProfileScreen = () => {
 
       {/* Header */}
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.headerAction}>
+        <Pressable onPress={() => router.push('home')} style={styles.headerAction}>
           <Ionicons name="arrow-back" size={hp(3)} color={theme.colors.sageGreen} />
         </Pressable>
-        <Text style={styles.headerTitle}>Your Profile Screen</Text>
+        <Text style={styles.headerTitle}>Your Profile</Text>
         <View style={styles.headerAction} />
       </View>
 
