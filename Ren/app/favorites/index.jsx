@@ -1,5 +1,5 @@
 // favorites/index.jsx
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, ToastAndroid, Platform, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { hp, wp } from '../../utils/common';
 import { theme } from '../../constants/theme';
@@ -37,6 +37,25 @@ const FavoritesScreen = () => {
     }
   };
 
+  const removeFavorite = async (message) => {
+    const updatedFavorites = favorites.filter((fav) => fav !== message);
+    setFavorites(updatedFavorites);
+    try {
+      await AsyncStorage.setItem('@favorites', JSON.stringify(updatedFavorites));
+      showToast('Removed from favorites');
+    } catch (e) {
+      console.error('Failed to update favorites.', e);
+    }
+  };
+
+  const showToast = (message) => {
+    if (Platform.OS === 'android') {
+      ToastAndroid.show(message, ToastAndroid.SHORT);
+    } else {
+      Alert.alert(message);
+    }
+  };
+
   const menuItems = [
     { name: 'Your Profile', icon: 'person-outline', route: 'profile' },
     { name: 'Your Favorite Messages', icon: 'heart-outline', route: 'favorites' },
@@ -70,10 +89,17 @@ const FavoritesScreen = () => {
               entering={FadeInUp.delay(index * 100)}
               style={styles.animatedQuoteItem}
             >
-              <Pressable style={styles.quoteItem}>
-                <Ionicons name="heart" size={hp(2.5)} color={theme.colors.sageGreen} style={styles.icon} />
+              <View style={styles.quoteItem}>
                 <Text style={styles.quoteText}>{quote}</Text>
-              </Pressable>
+                <Pressable onPress={() => removeFavorite(quote)}>
+                  <Ionicons
+                    name="heart"
+                    size={hp(3)}
+                    color={theme.colors.sageGreen}
+                    style={styles.icon}
+                  />
+                </Pressable>
+              </View>
             </Animated.View>
           ))
         ) : (
@@ -164,7 +190,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
-    justifyContent: 'flex-start',
+    justifyContent: 'space-between', // Adjusted to space between text and icon
     marginBottom: hp(1.5),
     width: '100%',
     flexGrow: 1,
@@ -174,11 +200,10 @@ const styles = StyleSheet.create({
     fontSize: hp(2.5),
     color: theme.colors.sageGreen,
     textAlign: 'left',
-    marginLeft: wp(3),
     flexShrink: 1,
   },
   icon: {
-    marginRight: wp(2),
+    marginLeft: wp(2),
   },
   noFavorites: {
     fontSize: hp(2),

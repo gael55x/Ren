@@ -5,11 +5,12 @@ import {
   Pressable,
   TextInput,
   ActivityIndicator,
-  ToastAndroid, 
+  ToastAndroid,
   Platform,
-  Alert, 
+  Alert,
+  Keyboard, 
 } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react'; 
 import { hp, wp } from '../../utils/common';
 import { theme } from '../../constants/theme';
 import { StatusBar } from 'expo-status-bar';
@@ -18,7 +19,7 @@ import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import Modal from 'react-native-modal';
 import { router } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = () => {
   const [customFeeling, setCustomFeeling] = useState('');
@@ -30,8 +31,10 @@ const HomeScreen = () => {
   const [userPrompt, setUserPrompt] = useState('');
   const [typingText, setTypingText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [favorites, setFavorites] = useState([]); 
-  const [isFavorite, setIsFavorite] = useState(false); 
+  const [favorites, setFavorites] = useState([]);
+  const [isFavorite, setIsFavorite] = useState(false);
+
+  const customInputRef = useRef(null);
 
   useEffect(() => {
     loadFavorites();
@@ -90,7 +93,9 @@ const HomeScreen = () => {
       setShowButtons(false);
       setShowPrompt(true);
       setLoading(true);
-      setIsFavorite(false); 
+      setIsFavorite(false);
+
+      Keyboard.dismiss();
 
       setTimeout(async () => {
         const response = await fetch('http://10.0.2.2:5000/chatbot', {
@@ -153,7 +158,7 @@ const HomeScreen = () => {
       name: 'Your Favorite Messages',
       icon: 'heart-outline',
       route: 'favorites',
-      params: { refresh: Math.random() }, 
+      params: { refresh: Math.random() },
     },
     { name: 'Settings', icon: 'settings-outline' },
     { name: 'Notifications', icon: 'notifications-outline' },
@@ -215,6 +220,7 @@ const HomeScreen = () => {
             <Text style={styles.questionText}>How are you feeling today?</Text>
           </View>
 
+          {/* Mood Buttons */}
           <Animated.View entering={FadeInDown.delay(800).springify()} style={styles.moodButtonsContainer}>
             <View style={styles.moodButtons}>
               {moodItems.map((item, index) => (
@@ -231,13 +237,19 @@ const HomeScreen = () => {
             </View>
           </Animated.View>
 
+          {/* Custom Prompt Section */}
           <View style={styles.customPrompt}>
             <TextInput
+              ref={customInputRef}
               style={styles.customInput}
               placeholder="Custom Prompt Feeling goes here"
               placeholderTextColor={theme.colors.neutral(0.6)}
               value={customFeeling}
               onChangeText={setCustomFeeling}
+              onFocus={() => {
+                customInputRef.current.focus();
+              }}
+              autoFocus={false}
             />
             <Pressable
               style={styles.promptButton}
@@ -245,6 +257,7 @@ const HomeScreen = () => {
                 if (customFeeling.trim()) {
                   sendMessageToBackend(customFeeling);
                   setCustomFeeling('');
+                  Keyboard.dismiss(); // Dismiss keyboard after sending
                 }
               }}
             >
