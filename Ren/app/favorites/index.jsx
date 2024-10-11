@@ -1,5 +1,6 @@
+// favorites/index.jsx
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { hp, wp } from '../../utils/common';
 import { theme } from '../../constants/theme';
 import { StatusBar } from 'expo-status-bar';
@@ -7,13 +8,34 @@ import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Modal from 'react-native-modal';
 import Animated, { FadeInUp } from 'react-native-reanimated';
-import { useNavigation, router, useLocalSearchParams } from 'expo-router';
+import { useNavigation, router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FavoritesScreen = () => {
   const navigation = useNavigation();
-  const { favorites } = useLocalSearchParams(); // Fetch favorites passed via navigation
-
+  const [favorites, setFavorites] = useState([]); // State to hold favorites
   const [isMenuVisible, setIsMenuVisible] = useState(false);
+
+  useEffect(() => {
+    const focusListener = navigation.addListener('focus', () => {
+      loadFavorites(); // Load favorites when the screen is focused
+    });
+
+    return focusListener;
+  }, [navigation]);
+
+  const loadFavorites = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('@favorites');
+      if (jsonValue != null) {
+        setFavorites(JSON.parse(jsonValue));
+      } else {
+        setFavorites([]);
+      }
+    } catch (e) {
+      console.error('Failed to load favorites.', e);
+    }
+  };
 
   const menuItems = [
     { name: 'Your Profile', icon: 'person-outline', route: 'profile' },
@@ -76,7 +98,7 @@ const FavoritesScreen = () => {
               onPress={() => {
                 setIsMenuVisible(false);
                 if (item.route) {
-                  router.push(item.route);
+                  router.push({ pathname: item.route });
                 }
               }}
             >
@@ -128,11 +150,11 @@ const styles = StyleSheet.create({
     paddingBottom: hp(5),
   },
   animatedQuoteItem: {
-    marginBottom: hp(2), 
+    marginBottom: hp(2),
   },
   quoteItem: {
     backgroundColor: theme.colors.white,
-    flexDirection: 'row', 
+    flexDirection: 'row',
     alignItems: 'center',
     paddingVertical: hp(2.5),
     paddingHorizontal: wp(4),
@@ -144,16 +166,16 @@ const styles = StyleSheet.create({
     elevation: 3,
     justifyContent: 'flex-start',
     marginBottom: hp(1.5),
-    width: '100%', 
-    flexGrow: 1, 
-    flexShrink: 1, 
+    width: '100%',
+    flexGrow: 1,
+    flexShrink: 1,
   },
   quoteText: {
-    fontSize: hp(2.5), 
+    fontSize: hp(2.5),
     color: theme.colors.sageGreen,
-    textAlign: 'left', 
+    textAlign: 'left',
     marginLeft: wp(3),
-    flexShrink: 1, 
+    flexShrink: 1,
   },
   icon: {
     marginRight: wp(2),

@@ -1,4 +1,14 @@
-import { View, Text, StyleSheet, Pressable, TextInput, ActivityIndicator } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Pressable,
+  TextInput,
+  ActivityIndicator,
+  ToastAndroid, 
+  Platform,
+  Alert, 
+} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { hp, wp } from '../../utils/common';
 import { theme } from '../../constants/theme';
@@ -8,26 +18,68 @@ import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import Modal from 'react-native-modal';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
 
 const HomeScreen = () => {
   const [customFeeling, setCustomFeeling] = useState('');
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const [outputMessage, setOutputMessage] = useState(''); 
-  const [isTyping, setIsTyping] = useState(false); 
+  const [outputMessage, setOutputMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const [showButtons, setShowButtons] = useState(true);
   const [showPrompt, setShowPrompt] = useState(false);
-  const [userPrompt, setUserPrompt] = useState(''); 
-  const [typingText, setTypingText] = useState(''); 
-  const [loading, setLoading] = useState(false); 
-  const [favorites, setFavorites] = useState([]); // Add state for favorite messages
-  const [isFavorite, setIsFavorite] = useState(false); // Track if the response is a favorite
+  const [userPrompt, setUserPrompt] = useState('');
+  const [typingText, setTypingText] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [favorites, setFavorites] = useState([]); 
+  const [isFavorite, setIsFavorite] = useState(false); 
+
+  useEffect(() => {
+    loadFavorites();
+  }, []);
+
+  const loadFavorites = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem('@favorites');
+      if (jsonValue != null) {
+        setFavorites(JSON.parse(jsonValue));
+      }
+    } catch (e) {
+      console.error('Failed to load favorites.', e);
+    }
+  };
+
+  const saveFavorites = async (newFavorites) => {
+    try {
+      const jsonValue = JSON.stringify(newFavorites);
+      await AsyncStorage.setItem('@favorites', jsonValue);
+    } catch (e) {
+      console.error('Failed to save favorites.', e);
+    }
+  };
 
   const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    if (!isFavorite && outputMessage) {
-      setFavorites([...favorites, outputMessage]); // Add to favorites
+    let message = outputMessage.trim();
+    let updatedFavorites = [...favorites];
+
+    if (!isFavorite && message) {
+      updatedFavorites.push(message);
+      setIsFavorite(true);
+      showToast('Marked as favorite');
     } else {
-      setFavorites(favorites.filter(fav => fav !== outputMessage)); // Remove from favorites
+      updatedFavorites = updatedFavorites.filter((fav) => fav !== message);
+      setIsFavorite(false);
+      showToast('Removed from favorites');
+    }
+
+    setFavorites(updatedFavorites);
+    saveFavorites(updatedFavorites);
+  };
+
+  const showToast = (message) => {
+    if (Platform.OS === 'android') {
+      ToastAndroid.show(message, ToastAndroid.SHORT);
+    } else {
+      Alert.alert(message);
     }
   };
 
@@ -35,9 +87,10 @@ const HomeScreen = () => {
     try {
       setIsTyping(true);
       setUserPrompt(message);
-      setShowButtons(false); 
-      setShowPrompt(true); 
-      setLoading(true); 
+      setShowButtons(false);
+      setShowPrompt(true);
+      setLoading(true);
+      setIsFavorite(false); 
 
       setTimeout(async () => {
         const response = await fetch('http://10.0.2.2:5000/chatbot', {
@@ -48,7 +101,7 @@ const HomeScreen = () => {
           body: JSON.stringify({ message }),
         });
         const data = await response.json();
-        setLoading(false); 
+        setLoading(false);
 
         if (data.response && data.response.length > 0) {
           const responses = data.response[0];
@@ -60,7 +113,7 @@ const HomeScreen = () => {
           setIsTyping(false);
           resetUIAfterResponse();
         }
-      }, 2000); 
+      }, 2000);
     } catch (error) {
       console.error('Error:', error);
       setOutputMessage('Error connecting to the server.');
@@ -70,36 +123,43 @@ const HomeScreen = () => {
   };
 
   const typingEffect = (text) => {
-    setTypingText(''); 
+    setTypingText('');
     let i = 0;
 
     const typingInterval = setInterval(() => {
-      setTypingText((prev) => prev + text[i]); 
+      setTypingText((prev) => prev + text[i]);
       i++;
       if (i >= text.length) {
-        clearInterval(typingInterval); 
-        setOutputMessage(text); 
-        setIsTyping(false); 
-        resetUIAfterResponse(); 
+        clearInterval(typingInterval);
+        setOutputMessage(text);
+        setIsTyping(false);
+        resetUIAfterResponse();
+
+        setIsFavorite(favorites.includes(text.trim()));
       }
-    }, 20); 
+    }, 20);
   };
 
   const resetUIAfterResponse = () => {
     setTimeout(() => {
-      setShowButtons(true); 
-      setShowPrompt(false); 
-    }, 1000); 
+      setShowButtons(true);
+      setShowPrompt(false);
+    }, 1000);
   };
 
   const menuItems = [
     { name: 'Your Profile', icon: 'person-outline', route: 'profile' },
-    { name: 'Your Favorite Messages', icon: 'heart-outline', route: 'favorites' },
+    {
+      name: 'Your Favorite Messages',
+      icon: 'heart-outline',
+      route: 'favorites',
+      params: { refresh: Math.random() }, 
+    },
     { name: 'Settings', icon: 'settings-outline' },
     { name: 'Notifications', icon: 'notifications-outline' },
     { name: 'Logout', icon: 'log-out-outline' },
   ];
-  
+
   const moodItems = [
     { mood: 'Tired', emoji: '😴', color: theme.colors.sageGreen, message: "I'm feeling tired" },
     { mood: 'Nervous', emoji: '😰', color: theme.colors.darkBeige, message: "I'm feeling nervous" },
@@ -138,11 +198,11 @@ const HomeScreen = () => {
         </Text>
         {!isTyping && outputMessage && (
           <Pressable onPress={toggleFavorite}>
-            <Ionicons 
-              name={isFavorite ? "heart" : "heart-outline"} 
-              size={hp(3)} 
-              color={theme.colors.sageGreen} 
-              style={styles.favoriteIcon} 
+            <Ionicons
+              name={isFavorite ? 'heart' : 'heart-outline'}
+              size={hp(3)}
+              color={theme.colors.sageGreen}
+              style={styles.favoriteIcon}
             />
           </Pressable>
         )}
@@ -211,11 +271,16 @@ const HomeScreen = () => {
               onPress={() => {
                 setIsMenuVisible(false);
                 if (item.route) {
-                  router.push(item.route);
+                  router.push({ pathname: item.route });
                 }
               }}
             >
-              <Ionicons name={item.icon} size={hp(3)} color={theme.colors.sageGreen} style={styles.menuIconItem} />
+              <Ionicons
+                name={item.icon}
+                size={hp(3)}
+                color={theme.colors.sageGreen}
+                style={styles.menuIconItem}
+              />
               <Text style={styles.menuItemText}>{item.name}</Text>
             </Pressable>
           ))}
@@ -271,6 +336,10 @@ const styles = StyleSheet.create({
     color: theme.colors.sageGreen,
     textAlign: 'center',
     fontStyle: 'italic',
+  },
+  favoriteIcon: {
+    alignSelf: 'center',
+    marginTop: hp(2),
   },
   searchSection: {
     paddingHorizontal: wp(5),
@@ -332,10 +401,6 @@ const styles = StyleSheet.create({
     borderRadius: theme.radius.md,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  favoriteIcon: {
-    alignSelf: 'center',
-    marginTop: hp(2),
   },
   menuModal: {
     margin: 0,

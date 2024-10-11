@@ -59,7 +59,7 @@ const ProfileScreen = () => {
         <View style={styles.section}>
           <Pressable 
             style={styles.favoriteQuotesButton} 
-            onPress={() => navigation.push('/favorites')}
+            onPress={() => router.push('/favorites')}
           >
             <Text style={styles.rowLabel}>Your Favorite Inspirations</Text>
             <Ionicons name="chevron-forward" size={hp(3)} color={theme.colors.sageGreen} />
