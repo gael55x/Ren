@@ -12,12 +12,13 @@ import { router } from 'expo-router';
 const HomeScreen = () => {
   const [customFeeling, setCustomFeeling] = useState('');
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-  const [outputMessage, setOutputMessage] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
+  const [outputMessage, setOutputMessage] = useState(''); 
+  const [isTyping, setIsTyping] = useState(false); 
   const [showButtons, setShowButtons] = useState(true);
   const [showPrompt, setShowPrompt] = useState(false);
-  const [userPrompt, setUserPrompt] = useState('');
-  const [typingText, setTypingText] = useState(''); // State for the typing effect
+  const [userPrompt, setUserPrompt] = useState(''); 
+  const [typingText, setTypingText] = useState(''); 
+  const [loading, setLoading] = useState(false); 
 
   const menuItems = [
     { name: 'Your Profile', icon: 'person-outline', route: 'profile' },
@@ -31,33 +32,32 @@ const HomeScreen = () => {
     try {
       setIsTyping(true);
       setUserPrompt(message);
-      setShowButtons(false); // Hide the buttons when typing starts
-      setShowPrompt(true); // Display the user's message
+      setShowButtons(false); 
+      setShowPrompt(true); 
+      setLoading(true); 
 
-      const response = await fetch('http://10.0.2.2:5000/chatbot', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ message }),
-      });
-      const data = await response.json();
-      console.log('request: ', data);
+      setTimeout(async () => {
+        const response = await fetch('http://10.0.2.2:5000/chatbot', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ message }),
+        });
+        const data = await response.json();
+        setLoading(false); 
 
-      // Randomly select one response
-      if (data.response && data.response.length > 0) {
-        const responses = data.response[0];
-        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+        if (data.response && data.response.length > 0) {
+          const responses = data.response[0];
+          const randomResponse = responses[Math.floor(Math.random() * responses.length)];
 
-        // Add a 2-second delay before starting the typing effect
-        setTimeout(() => {
           typingEffect(`Ren: ${randomResponse}`);
-        }, 2000); // 2-second delay
-      } else {
-        setOutputMessage("I'm sorry, but I don't have a response for that question.");
-        setIsTyping(false);
-        resetUIAfterResponse();
-      }
+        } else {
+          setOutputMessage("I'm sorry, but I don't have a response for that question.");
+          setIsTyping(false);
+          resetUIAfterResponse();
+        }
+      }, 2000); 
     } catch (error) {
       console.error('Error:', error);
       setOutputMessage('Error connecting to the server.');
@@ -66,28 +66,27 @@ const HomeScreen = () => {
     }
   };
 
-  // Typing effect function with improved timing control
   const typingEffect = (text) => {
-    setTypingText(''); // Reset typing text
+    setTypingText(''); 
     let i = 0;
 
     const typingInterval = setInterval(() => {
-      setTypingText((prev) => prev + text[i]); // Add one character at a time
+      setTypingText((prev) => prev + text[i]); 
       i++;
       if (i >= text.length) {
-        clearInterval(typingInterval); // Stop typing when we reach the end of the message
-        setIsTyping(false); // Typing finished
-        resetUIAfterResponse();
+        clearInterval(typingInterval); 
+        setOutputMessage(text); 
+        setIsTyping(false); 
+        resetUIAfterResponse(); 
       }
-    }, 120); // Typing speed in milliseconds (adjust for a faster/slower effect)
+    }, 20); 
   };
 
-  // Reset the UI after response has been fully typed
   const resetUIAfterResponse = () => {
     setTimeout(() => {
-      setShowButtons(true); // Show buttons after response
-      setShowPrompt(false); // Hide user prompt once response is displayed
-    }, 1000); // Delay for showing buttons and hiding prompt after response
+      setShowButtons(true); 
+      setShowPrompt(false); 
+    }, 1000); 
   };
 
   const moodItems = [
@@ -122,7 +121,9 @@ const HomeScreen = () => {
           </Animated.View>
         )}
         <Text style={styles.outputMessage}>
-          {isTyping ? typingText : outputMessage}
+          {loading ? (
+            <ActivityIndicator size="small" color={theme.colors.sageGreen} />
+          ) : isTyping ? typingText : outputMessage}
         </Text>
       </View>
 
