@@ -8,6 +8,7 @@ import {
   ToastAndroid,
   Platform,
   Alert,
+  Image, 
   Keyboard, 
 } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react'; 
@@ -193,7 +194,14 @@ const HomeScreen = () => {
         <Text style={styles.inspirationText}>Your Daily Inspiration</Text>
         {showPrompt && (
           <Animated.View entering={FadeInDown.delay(300).springify()} style={styles.userPrompt}>
-            <Text style={styles.userPromptText}>You: {userPrompt}</Text>
+            <View style={styles.userPromptRow}>
+              {/* Profile Icon */}
+              <Image
+                source={require('../../assets/images/amolong_profile.png')}
+                style={styles.profileIcon}
+              />
+              <Text style={styles.userPromptText}>You: {userPrompt}</Text>
+            </View>
           </Animated.View>
         )}
         <Text style={styles.outputMessage}>
@@ -257,7 +265,7 @@ const HomeScreen = () => {
                 if (customFeeling.trim()) {
                   sendMessageToBackend(customFeeling);
                   setCustomFeeling('');
-                  Keyboard.dismiss(); // Dismiss keyboard after sending
+                  Keyboard.dismiss(); 
                 }
               }}
             >
@@ -336,8 +344,15 @@ const styles = StyleSheet.create({
     fontWeight: theme.fontWeights.medium,
     marginBottom: hp(4),
   },
-  userPrompt: {
-    marginBottom: hp(2),
+  userPromptRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  profileIcon: {
+    width: wp(8), 
+    height: wp(8), 
+    borderRadius: wp(4), 
+    marginRight: wp(2), 
   },
   userPromptText: {
     fontSize: hp(2.2),

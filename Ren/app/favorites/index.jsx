@@ -1,4 +1,3 @@
-// favorites/index.jsx
 import { View, Text, StyleSheet, Pressable, ScrollView, ToastAndroid, Platform, Alert } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { hp, wp } from '../../utils/common';
@@ -13,12 +12,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const FavoritesScreen = () => {
   const navigation = useNavigation();
-  const [favorites, setFavorites] = useState([]); // State to hold favorites
+  const [favorites, setFavorites] = useState([]); 
   const [isMenuVisible, setIsMenuVisible] = useState(false);
 
   useEffect(() => {
     const focusListener = navigation.addListener('focus', () => {
-      loadFavorites(); // Load favorites when the screen is focused
+      loadFavorites();
     });
 
     return focusListener;
@@ -190,7 +189,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 3 },
     elevation: 3,
-    justifyContent: 'space-between', // Adjusted to space between text and icon
+    justifyContent: 'space-between', 
     marginBottom: hp(1.5),
     width: '100%',
     flexGrow: 1,

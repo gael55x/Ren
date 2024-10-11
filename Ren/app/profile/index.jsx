@@ -19,13 +19,18 @@ const ProfileScreen = () => {
   const router = useRouter();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(false);
+  const [isLightTheme, setIsLightTheme] = useState(true);
+
+  const toggleTheme = () => {
+    setIsLightTheme(!isLightTheme);
+  };
 
   return (
     <LinearGradient
-      colors={['#ffffff', theme.colors.softBeige]} 
+      colors={isLightTheme ? ['#ffffff', '#ffffff'] : ['#ffffff', theme.colors.softBeige]} 
       style={styles.container}
     >
-      <StatusBar style="dark" />
+      <StatusBar style={isLightTheme ? 'dark' : 'light'} />
 
       {/* Header */}
       <View style={styles.header}>
@@ -57,8 +62,8 @@ const ProfileScreen = () => {
 
         {/* Your Favorite Inspirations Section */}
         <View style={styles.section}>
-          <Pressable 
-            style={styles.favoriteQuotesButton} 
+          <Pressable
+            style={styles.favoriteQuotesButton}
             onPress={() => router.push('/favorites')}
           >
             <Text style={styles.rowLabel}>Your Favorite Inspirations</Text>
@@ -81,11 +86,11 @@ const ProfileScreen = () => {
             </Pressable>
 
             {/* Theme Option */}
-            <Pressable style={styles.rowWrapper} onPress={() => { /* Handle Theme Change */ }}>
+            <Pressable style={styles.rowWrapper} onPress={toggleTheme}>
               <View style={styles.row}>
                 <Text style={styles.rowLabel}>Theme</Text>
                 <View style={styles.rowSpacer} />
-                <Text style={styles.rowValue}>Light</Text>
+                <Text style={styles.rowValue}>{isLightTheme ? 'Light' : 'Dark'}</Text>
                 <Ionicons name="chevron-forward" size={hp(2.5)} color={theme.colors.sageGreen} />
               </View>
             </Pressable>
@@ -196,7 +201,7 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   profileSection: {
-    flexDirection: 'row', // Left-align profile section
+    flexDirection: 'row', 
     alignItems: 'center',
     paddingVertical: hp(2),
   },
