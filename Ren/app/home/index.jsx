@@ -1,25 +1,57 @@
-// app/home/index.jsx
 import { View, Text, StyleSheet, Pressable, TextInput } from 'react-native';
 import React, { useState } from 'react';
 import { hp, wp } from '../../utils/common';
 import { theme } from '../../constants/theme';
 import { StatusBar } from 'expo-status-bar';
 import { FontAwesome, Ionicons } from '@expo/vector-icons';
-import Animated, { FadeInDown, Layout } from 'react-native-reanimated';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { LinearGradient } from 'expo-linear-gradient';
 import Modal from 'react-native-modal';
-import { router } from 'expo-router'; // Import router from expo-router for navigation
+import { router } from 'expo-router';
 
 const HomeScreen = () => {
   const [customFeeling, setCustomFeeling] = useState('');
   const [isMenuVisible, setIsMenuVisible] = useState(false);
-
+  const [outputMessage, setOutputMessage] = useState(''); 
   const menuItems = [
-    { name: 'Your Profile', icon: 'person-outline', route: 'profile' }, // Add route key
-    { name: 'Your Favorite Messages', icon: 'heart-outline', route: 'favorites' }, // Add route key
+    { name: 'Your Profile', icon: 'person-outline', route: 'profile' },
+    { name: 'Your Favorite Messages', icon: 'heart-outline', route: 'favorites' },
     { name: 'Settings', icon: 'settings-outline' },
     { name: 'Notifications', icon: 'notifications-outline' },
     { name: 'Logout', icon: 'log-out-outline' },
+  ];
+
+  const sendMessageToBackend = async (message) => {
+    try {
+      const response = await fetch('http://10.0.2.2:5000/chatbot', { 
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message }),
+      });
+      const data = await response.json();
+      console.log('request: ', data);
+      if (data.response && data.response.length > 0) {
+        setOutputMessage(data.response[0]);
+      } else {
+        setOutputMessage("I'm sorry, but I don't have a response for that question.");
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setOutputMessage('Error connecting to the server.');
+    }
+  };
+
+  const moodItems = [
+    { mood: 'Tired', emoji: '😴', color: theme.colors.sageGreen, message: "I'm feeling tired" },
+    { mood: 'Nervous', emoji: '😰', color: theme.colors.darkBeige, message: "I'm feeling nervous" },
+    { mood: 'Excited', emoji: '🤩', color: theme.colors.lightGreen, message: "I'm excited" },
+    { mood: 'Unsure', emoji: '🤔', color: theme.colors.sageGreen, message: "I'm feeling unsure" },
+    { mood: 'Sad', emoji: '😢', color: theme.colors.darkBeige, message: "I'm feeling sad" },
+    { mood: 'Burdened', emoji: '😓', color: theme.colors.lightGreen, message: "I'm feeling burdened" },
+    { mood: 'Angry', emoji: '😡', color: theme.colors.sageGreen, message: "I'm feeling angry" },
+    { mood: 'Happy', emoji: '😊', color: theme.colors.lightGreen, message: "I'm feeling happy" },
   ];
 
   return (
@@ -37,7 +69,7 @@ const HomeScreen = () => {
       {/* Inspirational Quote Section */}
       <View style={styles.quoteSection}>
         <Text style={styles.inspirationText}>Your Daily Dose of Inspiration</Text>
-        <Text style={styles.outputMessage}>"Message will appear here"</Text>
+        <Text style={styles.outputMessage}>{outputMessage || '"Message will appear here"'}</Text>
       </View>
 
       {/* Mood Input Section */}
@@ -50,17 +82,12 @@ const HomeScreen = () => {
         {/* Mood Buttons */}
         <Animated.View entering={FadeInDown.delay(800).springify()} style={styles.moodButtonsContainer}>
           <View style={styles.moodButtons}>
-            {[
-              { mood: 'Tired', emoji: '😴', color: theme.colors.sageGreen },
-              { mood: 'Nervous', emoji: '😰', color: theme.colors.darkBeige },
-              { mood: 'Excited', emoji: '🤩', color: theme.colors.lightGreen },
-              { mood: 'Unsure', emoji: '🤔', color: theme.colors.sageGreen },
-              { mood: 'Sad', emoji: '😢', color: theme.colors.darkBeige },
-              { mood: 'Burdened', emoji: '😓', color: theme.colors.lightGreen },
-              { mood: 'Angry', emoji: '😡', color: theme.colors.sageGreen },
-              { mood: 'Happy', emoji: '😊', color: theme.colors.lightGreen },
-            ].map((item, index) => (
-              <Pressable key={index} style={[styles.moodButton, { backgroundColor: item.color }]}>
+            {moodItems.map((item, index) => (
+              <Pressable
+                key={index}
+                style={[styles.moodButton, { backgroundColor: item.color }]}
+                onPress={() => sendMessageToBackend(item.message)}
+              >
                 <Text style={styles.moodButtonText}>
                   {item.emoji} {item.mood}
                 </Text>
@@ -78,7 +105,15 @@ const HomeScreen = () => {
             value={customFeeling}
             onChangeText={setCustomFeeling}
           />
-          <Pressable style={styles.promptButton}>
+          <Pressable
+            style={styles.promptButton}
+            onPress={() => {
+              if (customFeeling.trim()) {
+                sendMessageToBackend(customFeeling);
+                setCustomFeeling('');
+              }
+            }}
+          >
             <FontAwesome name="chevron-up" size={hp(4)} color={theme.colors.white} />
           </Pressable>
         </View>
@@ -101,7 +136,7 @@ const HomeScreen = () => {
               onPress={() => {
                 setIsMenuVisible(false);
                 if (item.route) {
-                  router.push(item.route); // Use router to navigate to the respective route
+                  router.push(item.route);
                 }
               }}
             >
