@@ -1,6 +1,3 @@
-Here's a structured **README.md** file for your project "Ren":
-
-
 # Ren - Your Daily Inspirational Bot
 
 ### Project by: Gaille Amolong  
