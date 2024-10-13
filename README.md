@@ -125,19 +125,19 @@ Ren was born from the desire to make mental health support more accessible and o
 ## Screenshots
 
 ### Welcome Screen:
-![Welcome Screen](link_to_image)
+![Welcome Screen](Ren/assets/documentation/welcome.png)
 
 ### Home Screen:
-![Home Screen](link_to_image)
+![Home Screen](Ren/assets/documentation/home.png)
 
 ### Profile Screen (Dark Mode):
-![Profile Screen Dark Mode](link_to_image)
+![Profile Screen Dark Mode](Ren/assets/documentation/profile-dark.png)
 
 ### Profile Screen (Light Mode):
-![Profile Screen Light Mode](link_to_image)
+![Profile Screen Light Mode](Ren/assets/documentation/profile-light.png)
 
 ### Favorite Messages Screen:
-![Favorite Messages Screen](link_to_image)
+![Favorite Messages Screen](Ren/assets/documentation/favorites.png)
 
 ---
 
